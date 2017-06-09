@@ -1,0 +1,112 @@
+/*Autores:
+Jehison Andres Rodriguez
+Juan Pablo Soler
+Cesar Mauricio Forero
+*/
+
+package main
+
+import (
+	bu "bufio"
+	io "fmt"
+	os "os"
+	reg "regexp"
+	str "strings"
+)
+
+//::::::::::::::::::: Nuevos Tipos de Datos ::::::::::::::
+
+type Nodo struct {
+	Valor  int
+	Nombre string
+}
+
+type Stack struct {
+	nodos    []*Nodo
+	contador int
+}
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+//:::::::::::::::::::::: Fuciones ::::::::::::::::::::::::
+
+//-----------------Informacion del Nodo------------------
+func (nodo *Nodo) String() string {
+	return nodo.Nombre
+}
+
+//-------------------------------------------------------
+
+//------------------Funciones del Stack------------------
+func NuevoStack() *Stack {
+	return &Stack{}
+}
+
+func (pila *Stack) Push(nodo *Nodo) {
+	pila.nodos = append(pila.nodos[:pila.contador], nodo)
+	pila.contador++
+}
+
+func (pila *Stack) Pop() *Nodo {
+	if pila.contador == 0 {
+		return nil
+	}
+	pila.contador--
+	return pila.nodos[pila.contador]
+}
+
+//-------------------------------------------------------
+
+func ResolverPila(pila *Stack) int {
+
+	rsta := 0
+	for i := 0; i < len(pila.nodos); i++ {
+		termino := pila.Pop()
+		match, _ := reg.MatchString("[&,|,!]", termino.Nombre)
+		match1, _ := reg.MatchString("[0-9]", termino.Nombre)
+		match2, _ := reg.MatchString("[true, false]", termino.Nombre)
+		match3, _ := reg.MatchString("[<,>,=,<=,>=]", termino.Nombre)
+		if match == true {
+			io.Println(termino.Nombre, " de Tipo logico")
+		}
+		if match1 == true {
+			io.Println(termino.Nombre, "de Tipo Numerico")
+		}
+		if match2 == true {
+			io.Println(termino.Nombre, "de Tipo Boolean")
+		}
+		if match3 == true {
+			io.Println(termino.Nombre, "de Tipo Comparacion")
+		}
+	}
+	return rsta
+}
+
+func LecturaDesdeConosola() (string, error) {
+	lectura := bu.NewReader(os.Stdin)
+	s, err := lectura.ReadString('\n')
+
+	return str.TrimSpace(s), err
+}
+
+func main() {
+
+	io.Print("Ingrese la expresion (Arbol 1) en postfijo: ")
+	arbol1String, err := LecturaDesdeConosola()
+
+	pila1 := NuevoStack()
+
+	array1 := str.Split(arbol1String, " ")
+
+	for i := 0; i < len(array1); i++ {
+		pila1.Push(&Nodo{i, array1[i]})
+	}
+
+	ResolverPila(pila1)
+
+	if err != nil {
+		io.Println("Error cuando se escaneo la entrada", err.Error())
+		return
+	}
+
+}
